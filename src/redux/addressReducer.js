@@ -3,6 +3,7 @@ import {addressAPI} from "../API/addressApi";
 
 const SET_SUGGESTIONS = 'SET_SUGGESTIONS';
 const SET_ADDRESS = 'SET_ADDRESS';
+const SET_EDITED_ADDRESS = 'SET_EDITED_ADDRESS';
 
 let filterSuggestions = (suggestions) => {
     let filteredSuggestions = [];
@@ -16,6 +17,7 @@ let filterSuggestions = (suggestions) => {
 };
 
 let initialState = {
+    message1: '',
     suggestions: [],
     filteredSuggestions: [],
     currentAddress: '',
@@ -38,15 +40,11 @@ let initialState = {
         house: '',
         // houseWithType: ''
     },
-    userAddress: {
-        region: '',
-        city: '',
-        street: '',
-        house: '',
-        flat: '',
-        postalCode: ''
+    editedAddress: {
+
     }
 };
+
 
 
 const addressReducer = (state = initialState, action) => {
@@ -58,23 +56,28 @@ const addressReducer = (state = initialState, action) => {
                 filteredSuggestions: action.suggestions ? filterSuggestions(action.suggestions) : state.suggestions
             }
         case SET_ADDRESS:
-            debugger
+
             return {
                 ...state,
                 currentAddress: action.currentAddress,
                 fullCurrentAddress: action.fullCurrentAddress
             }
+        case SET_EDITED_ADDRESS:
+
+            return {
+                ...state,
+                editedAddress: action.address
+            }
+
         default:
             return state
     }
 }
 
 export const setSuggestionActionCreator = (suggestions) => ({type: SET_SUGGESTIONS, suggestions});
-export const setCurrentAddressActionCreator = (currentAddress, fullCurrentAddress) => ({
-    type: SET_ADDRESS,
-    currentAddress,
-    fullCurrentAddress
-});
+export const setCurrentAddressActionCreator = (currentAddress, fullCurrentAddress) => ({type: SET_ADDRESS, currentAddress, fullCurrentAddress});
+export const setEditedAddressActionCreator = (address) => ({type: SET_EDITED_ADDRESS, address});
+
 
 // function mapResponseSuggestionToOptionalSuggestion(response) {
 //     //TODO suggestions -> полную строчку + профверка на null + если null, то пустота
@@ -130,9 +133,8 @@ export const getSuggestion = (textFromField) => async (dispatch) => {
 export const getAddress = (textFromField) => async (dispatch) => {
 
     let response = await addressAPI.getAddress(textFromField);
-    if (response.data.suggestions.length > 0) {
+    if (response) {
         let currentAddress = response.value;
-
         let fullCurrentAddress = {
             country: response.data.country,
             region: response.data.region_with_type,
@@ -142,11 +144,7 @@ export const getAddress = (textFromField) => async (dispatch) => {
             flat: response.data.flat ? response.data.flat_type + ' ' + response.data.flat : null,
             postalCode: response.data.postalCode
         }
-
         dispatch(setCurrentAddressActionCreator(currentAddress, fullCurrentAddress));
-    } else {
-
-        dispatch(setCurrentAddressActionCreator(textFromField, ))
     }
 
 }

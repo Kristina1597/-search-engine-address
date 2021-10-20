@@ -17,19 +17,6 @@ export const theme = createTheme({
         fontFamily: `'Roboto', sans-serif`,
         fontSize: 14,
 
-        h1: {
-            fontWeight: 700,
-            fontSize: '35px'
-        },
-
-        h2: {
-            fontSize: '16px',
-            fontWeight: 500,
-        },
-        h3: {
-            fontSize: '14px',
-            fontWeight: 300,
-        },
         body: {
             fontSize: 16,
             fontWeight: 400
@@ -89,9 +76,6 @@ export const theme = createTheme({
                 }
             }
         },
-        MuiTypography: {
-
-        }
     },
 
     props: {
@@ -105,12 +89,6 @@ export const theme = createTheme({
             InputLabelProps: {
                 shrink: true
             }
-        },
-        MuiPaper: {
-            elevation: 12
-        },
-        MuiCard: {
-            elevation: 12
         },
         MuiTypography: {
             variant: 'h2'
