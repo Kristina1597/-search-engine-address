@@ -1,37 +1,57 @@
-import React, {useState} from "react";
+import React from "react";
 import {Button, Grid} from "@mui/material";
 import styled from "styled-components";
 import AddressItemForm from "./AddressItemForm";
-import {setEditedAddressActionCreator} from "../redux/addressReducer";
 
 
 const AddressEditMode = (props) => {
 
-
+    let addressDetail = {
+        region: props.fullCurrentAddress.region || props.editedAddress.region || "",
+        city: props.fullCurrentAddress.city || props.editedAddress.city || "",
+        street: props.fullCurrentAddress.street || props.editedAddress.street || "",
+        house: props.fullCurrentAddress.house || props.editedAddress.house || "",
+        flat: props.fullCurrentAddress.flat || props.editedAddress.flat || "",
+        postalCode: props.fullCurrentAddress.postalCode || props.editedAddress.postalCode || "",
+    }
 
     const getLines = (e) => {
-        let id = e.currentTarget.id;
-        switch (id) {
+        switch (e.currentTarget.id) {
             case 'region':
-                props.addressDetail.region = e.target.value;
+                addressDetail.region = e.target.value;
                 break
             case 'city':
-                props.addressDetail.city = e.target.value;
+                addressDetail.city = e.target.value;
                 break
             case 'street':
-                props.addressDetail.street = e.target.value;
+                addressDetail.street = e.target.value;
                 break
             case 'house':
-                props.addressDetail.house = e.target.value;
+                addressDetail.house = e.target.value;
                 break
             case 'flat':
-                props.addressDetail.flat = e.target.value;
+                addressDetail.flat = e.target.value;
                 break
             case 'postalCode':
-                props.addressDetail.postalCode = e.target.value;
+                addressDetail.postalCode = e.target.value;
                 break
+            default :
+                break;
         }
 
+    }
+
+    const onSubmit = () => {
+        console.log(addressDetail)
+        let isAllFieldsFilled = Object.values(addressDetail).some(field => field.length === 0);
+        if (isAllFieldsFilled) {
+            props.setEditMode(true);
+            alert("Не все поля заполнены!")
+        } else {
+            props.setEditedAddress(addressDetail);
+            props.setEditMode(false);
+            props.setIsAddressCompleted(true);
+        }
     }
 
 
@@ -42,16 +62,17 @@ const AddressEditMode = (props) => {
     let Title = styled.h3`
       margin-bottom: 10px;
     `;
+    const isFieldNotEmpty = (line) => line === '';
+
     return (<div>
             <Grid marginBottom={'30px'} container spacing={2} justifyContent={"space-between"}>
-                <Title>{props.message1}</Title>
                 <Grid item xs={6}>
                     <Item>
                         <Title>Регион</Title>
                         <AddressItemForm id={'region'}
                                          getLines={getLines}
-                                         error={props.addressDetail.region === ''}
-                                         defaultValue={props.addressDetail.region}
+                                         error={isFieldNotEmpty(addressDetail.region)}
+                                         defaultValue={addressDetail.region}
                         />
                     </Item>
                 </Grid>
@@ -60,8 +81,8 @@ const AddressEditMode = (props) => {
                         <Title>Населенный пункт</Title>
                         <AddressItemForm id={'city'}
                                          getLines={getLines}
-                                         error={props.addressDetail.city === ''}
-                                         defaultValue={props.addressDetail.city}
+                                         error={isFieldNotEmpty(addressDetail.city)}
+                                         defaultValue={addressDetail.city}
                         />
                     </Item>
                 </Grid>
@@ -70,8 +91,8 @@ const AddressEditMode = (props) => {
                         <Title>Улица</Title>
                         <AddressItemForm id={'street'}
                                          getLines={getLines}
-                                         error={props.addressDetail.street === ''}
-                                         defaultValue={props.addressDetail.street}
+                                         error={isFieldNotEmpty(addressDetail.street)}
+                                         defaultValue={addressDetail.street}
                         />
                     </Item>
                 </Grid>
@@ -80,8 +101,8 @@ const AddressEditMode = (props) => {
                         <Title>Дом</Title>
                         <AddressItemForm id={'house'}
                                          getLines={getLines}
-                                         error={props.addressDetail.house === ''}
-                                         defaultValue={props.addressDetail.house}/>
+                                         error={isFieldNotEmpty(addressDetail.house)}
+                                         defaultValue={addressDetail.house}/>
                     </Item>
                 </Grid>
                 <Grid item xs={6}>
@@ -89,8 +110,8 @@ const AddressEditMode = (props) => {
                         <Title>Квартира</Title>
                         <AddressItemForm id={'flat'}
                                          getLines={getLines}
-                                         error={props.addressDetail.flat === ''}
-                                         defaultValue={props.addressDetail.flat}/>
+                                         error={isFieldNotEmpty(addressDetail.flat)}
+                                         defaultValue={addressDetail.flat}/>
                     </Item>
                 </Grid>
                 <Grid item xs={6}>
@@ -98,11 +119,12 @@ const AddressEditMode = (props) => {
                         <Title>Почтовый индекс</Title>
                         <AddressItemForm id={'postalCode'}
                                          getLines={getLines}
-                                         error={props.addressDetail.postalCode === ''}
-                                         defaultValue={props.addressDetail.postalCode}/>
+                                         error={isFieldNotEmpty(addressDetail.postalCode)}
+                                         defaultValue={addressDetail.postalCode}/>
                     </Item>
                 </Grid>
             </Grid>
+            <Button disableRipple={true} onClick={onSubmit} variant={"contained"}>Сохранить</Button>
         </div>
     )
 

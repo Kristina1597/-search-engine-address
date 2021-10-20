@@ -17,6 +17,19 @@ export const theme = createTheme({
         fontFamily: `'Roboto', sans-serif`,
         fontSize: 14,
 
+        h1: {
+            fontWeight: 700,
+            fontSize: '35px'
+        },
+
+        h2: {
+            fontSize: '20px',
+            fontWeight: 700,
+        },
+        h3: {
+            fontSize: '16px',
+            fontWeight: 400,
+        },
         body: {
             fontSize: 16,
             fontWeight: 400

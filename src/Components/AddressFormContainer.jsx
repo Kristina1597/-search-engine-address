@@ -1,20 +1,19 @@
 import React from "react";
-import AddressForm from "./AddressForm";
 import {connect} from "react-redux";
 import {getAddress, getSuggestion, setEditedAddressActionCreator} from "../redux/addressReducer";
-import AddressForm2 from "./AddressForm2";
+import AddressForm from "./AddressForm";
 
 class AddressFormContainer extends React.Component {
 
     render() {
-        return <AddressForm2 suggestions={this.props.suggestions}
-                             filteredSuggestions={this.props.filteredSuggestions}
-                             currentAddress={this.props.currentAddress}
-                             fullCurrentAddress={this.props.fullCurrentAddress}
-                             getSuggestion={this.props.getSuggestion}
-                             setAddress={this.props.setAddress}
-                             editedAddress={this.props.editedAddress}
-                             setEditedAddress={this.props.setEditedAddress}
+        return <AddressForm suggestions={this.props.suggestions}
+                            filteredSuggestions={this.props.filteredSuggestions}
+                            currentAddress={this.props.currentAddress}
+                            fullCurrentAddress={this.props.fullCurrentAddress}
+                            getSuggestion={this.props.getSuggestion}
+                            setAddress={this.props.setAddress}
+                            editedAddress={this.props.editedAddress}
+                            setEditedAddress={this.props.setEditedAddress}
         />
     }
 }

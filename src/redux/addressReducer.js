@@ -17,34 +17,20 @@ let filterSuggestions = (suggestions) => {
 };
 
 let initialState = {
-    message1: '',
     suggestions: [],
     filteredSuggestions: [],
     currentAddress: '',
     fullCurrentAddress: {
         country: '',
-        postalCode: '',
-        regionType: '',
         region: '',
-        // regionNameWithType: '',
-        cityType: '',
         city: '',
-        // cityNameWithType:'',
-        settlementType: '',
-        settlement: '',
-        // settlementNameWithType: '',
-        streetType: '',
         street: '',
-        // streetNameWithType: '',
-        houseType: '',
         house: '',
-        // houseWithType: ''
+        flat: '',
+        postalCode: ''
     },
-    editedAddress: {
-
-    }
+    editedAddress: {}
 };
-
 
 
 const addressReducer = (state = initialState, action) => {
@@ -63,10 +49,13 @@ const addressReducer = (state = initialState, action) => {
                 fullCurrentAddress: action.fullCurrentAddress
             }
         case SET_EDITED_ADDRESS:
-
+            debugger
             return {
                 ...state,
-                editedAddress: action.address
+                editedAddress: action.address,
+                currentAddress: action.address.region + ', ' + action.address.city + ', ' + action.address.street
+                    + ', д ' + action.address.house + ', кв ' + action.address.flat + ', индекс ' + action.address.postalCode
+
             }
 
         default:
@@ -75,56 +64,31 @@ const addressReducer = (state = initialState, action) => {
 }
 
 export const setSuggestionActionCreator = (suggestions) => ({type: SET_SUGGESTIONS, suggestions});
-export const setCurrentAddressActionCreator = (currentAddress, fullCurrentAddress) => ({type: SET_ADDRESS, currentAddress, fullCurrentAddress});
+export const setCurrentAddressActionCreator = (currentAddress, fullCurrentAddress) => ({
+    type: SET_ADDRESS,
+    currentAddress,
+    fullCurrentAddress
+});
 export const setEditedAddressActionCreator = (address) => ({type: SET_EDITED_ADDRESS, address});
-
-
-// function mapResponseSuggestionToOptionalSuggestion(response) {
-//     //TODO suggestions -> полную строчку + профверка на null + если null, то пустота
-//
-//         // let filteredResponse = response.map((s) =>
-//         // {
-//         //         {country: s.data.country}
-//         //         {regionName: s.data.region}
-//         //         {regionType: s.data.region_type_full}
-//         //         {cityType: s.data.city_type_full}
-//         //         {cityName: s.data.city}
-//         //         {settlementType: s.data.settlement_type_full}
-//         //         {settlementName: s.data.settlement}
-//         //         {streetType: s.data.street_type_full}
-//         //         {streetName: s.data.street}
-//         //         {houseType: s.data.house_type}
-//         //         {house: s.data.house}
-//         //         {blockType: s.data.block_type}
-//         //         {block: s.data.block}
-//         //         {entrance: s.data.entrance}
-//         //         {floor: s.data.floor}
-//         //         {flatType: s.data.flat_type_full}
-//         //         {flat: s.data.flat}
-//         // }
-//     // )
-//     debugger
-// return filteredResponse
-// }
 
 export const getSuggestion = (textFromField) => async (dispatch) => {
 
-        let response = await addressAPI.getSuggestion(textFromField);
-        let filteredResponse;
-        if (response !== null) {
-            filteredResponse = response.map((s) => {
-                    return {
-                        country: s.data.country,
-                        postalCode: s.data.postal_code,
-                        regionNameWithType: s.data.region_with_type,
-                        cityNameWithType: s.data.city_with_type,
-                        settlementNameWithType: s.data.settlement_with_type,
-                        streetNameWithType: s.data.street_with_type,
-                        houseWithType: s.data.house === null ? null : s.data.house_type + ' ' + s.data.house
-                    }
+    let response = await addressAPI.getSuggestion(textFromField);
+    let suggestions = response.data.suggestions;
+    if (suggestions.length > 0) {
+        let filteredResponse = suggestions.map((s) => {
+                let data = s.data;
+                return {
+                    country: data.country,
+                    postalCode: data.postal_code,
+                    regionNameWithType: data.region_with_type,
+                    cityNameWithType: data.city_with_type,
+                    settlementNameWithType: data.settlement_with_type,
+                    streetNameWithType: data.street_with_type,
+                    houseWithType: data.house === null ? null : ' ' + data.house
                 }
+            }
             )
-            console.log(response)
             dispatch(setSuggestionActionCreator(filteredResponse));
         }
     }
@@ -132,19 +96,33 @@ export const getSuggestion = (textFromField) => async (dispatch) => {
 
 export const getAddress = (textFromField) => async (dispatch) => {
 
-    let response = await addressAPI.getAddress(textFromField);
-    if (response) {
-        let currentAddress = response.value;
-        let fullCurrentAddress = {
-            country: response.data.country,
-            region: response.data.region_with_type,
-            city: response.data.city_with_type || response.data.settlement_with_type,
-            street: response.data.street_with_type,
-            house: response.data.house ? response.data.house_type + ' ' + response.data.house : null,
-            flat: response.data.flat ? response.data.flat_type + ' ' + response.data.flat : null,
-            postalCode: response.data.postalCode
+    let response = await addressAPI.getSuggestion(textFromField);
+    let currentAddress = '';
+    let fullCurrentAddress = {
+        country: '',
+        region: '',
+        city: '',
+        street: '',
+        house: '',
+        flat: '',
+        postalCode: ''
+    }
+    let suggestions = response.data.suggestions;
+    if (suggestions.length > 0) {
+        currentAddress = suggestions[0].value;
+        let data = suggestions[0].data;
+        fullCurrentAddress = {
+            country: data.country,
+            region: data.region_with_type,
+            city: data.city_with_type || data.settlement_with_type,
+            street: data.street_with_type,
+            house: data.house ? data.house : null,
+            flat: data.flat ? +data.flat : null,
+            postalCode: data.postalCode
         }
         dispatch(setCurrentAddressActionCreator(currentAddress, fullCurrentAddress));
+    } else {
+        dispatch(setCurrentAddressActionCreator(currentAddress, fullCurrentAddress))
     }
 
 }

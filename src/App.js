@@ -1,4 +1,3 @@
-import './App.css';
 import {Component} from "react";
 import {connect} from "react-redux";
 import {theme} from "./Theme/theme";
@@ -20,7 +19,6 @@ const Wrapper = styled.div`
 
 class App extends Component {
     render() {
-        console.log(this.props)
         return (
             <Wrapper>
                 <ThemeProvider theme={theme}>

@@ -11,18 +11,14 @@ const AddressItemForm = (props) => {
     const onBlur = (e) => {
         if (line.length > 0) {
             setError(false);
-            props.getLines(e)
+            props.getLines(e);
         } else {
             setError(true);
         }
     }
 
     const onChange = (e) => {
-        if (line.length > 0) {
-            setError( false);
-        } else {
-            setError( true);
-        }
+        setError(!line.length > 0)
         setLine(e.currentTarget.value);
     }
 
@@ -33,6 +29,7 @@ const AddressItemForm = (props) => {
             size={"small"}
             autoFocus
             error={error}
+            helperText={error && 'Обязательно для заполнения'}
             onBlur={onBlur}
             onChange={onChange}
             defaultValue={line}

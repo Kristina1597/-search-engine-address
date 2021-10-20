@@ -1,92 +1,129 @@
-import {Autocomplete, Button, TextField, Typography} from "@mui/material";
-import {Container} from "@material-ui/core";
-import {useRef, useState} from "react";
-import {theme} from "../Theme/theme";
-import styled from "styled-components";
+import * as React from 'react';
+import {useState} from 'react';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Autocomplete from '@mui/material/Autocomplete';
+import {Button, Container, IconButton, Typography} from "@mui/material";
+import styled from 'styled-components'
+import AddressEditMode from "./AddressEditMode";
+import EditIcon from '@mui/icons-material/Edit';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 
-let cities = ['Moscow', 'Rome', 'Sochi', 'Barselona', 'Chicago'];
+export default function AddressForm(props) {
 
-const AddressForm = (props) => {
-    const AddressFormWrap = styled.div`
+    const [firstStepEditing, setFirstStepEditing] = useState(true);
+    const [secondStepEditing, setSecondStepEditing] = useState(false);
+    const [isEditMode, setEditMode] = useState(false);
+    const [isAddressCompleted, setIsAddressCompleted] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    let ResultBlock = styled.div`
+      width: 100%;
+      margin: 25px 0;
       display: flex;
       flex-direction: row;
+      align-items: center`
+
+    let SuccessBlock = styled.div`
       width: 100%;
-      justify-content: space-between;
-      align-items: center;
-    `
-    console.log(props)
+      margin: 100px auto 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center`
 
-    const [editMode, setEditMode] = useState(false);
-    const [fieldValue, setFieldValue] = useState(null);
-    const [fillingAddressCompleted, setFillingAddressCompleted] = useState(false);
-    const [firstFillingAddressCompleted, setFirstFillingAddressCompleted] = useState(false);
+    const onSubmitSearch = (e) => {
+        //Получение значения из Autocomplete
+        let text = e.currentTarget.parentElement.children[0].children[0].children[0].children[0].value;
+        text.length > 0 && setAddress(text);
+        setFirstStepEditing(false);
+        setSecondStepEditing(true);
+    }
 
-    console.log(fieldValue)
+    let setAddress = (text) => {
+        props.setAddress(text);
+    }
 
-    const getSuggestion = (value) => {
+    let turnEditMode = () => {
+        setIsAddressCompleted(false)
+        setEditMode(!isEditMode);
+    }
+
+    let createSuggestionLine = (suggestions) => {
+        let entries = suggestions.map((s) => Object.entries(s))
+        return (entries.map((l) => l.map((i) => i[1])))
+    }
+
+    let onInputChange = (event, value) => {
         props.getSuggestion(value);
     }
 
-    const handleChange = (event, newValue) => {
-        if (typeof newValue === 'string' && newValue !== fieldValue) {
-            setFieldValue(newValue);
-            getSuggestion(newValue);
-        }
-
-
-        // if (e !== null) {
-        //     let value = e.target.value;
-        //     setFieldValue(value);
-        //     console.log(value);
-        // }
+    const finishEditing = () => {
+        setIsSuccess(true)
     }
 
-    const handleSubmit = (e) => {
-        console.log(e.target.value)
-    }
+    return (<Container>
+            {!isSuccess ? <div>
+                    {firstStepEditing && <Stack direction="row" spacing={1} margin={'0 auto 20px'}>
+                        <Autocomplete
+                            fullWidth
+                            freeSolo
+                            disableClearable
+                            options={createSuggestionLine(props.filteredSuggestions).map((s) => s.join(", "))}
+                            onInputChange={onInputChange}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label=""
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        type: 'search',
+                                    }}
+                                />
+                            )}
+                        />
+                        <Button onClick={onSubmitSearch} disableRipple={true} variant={"contained"}>Далее</Button>
+                    </Stack>}
+                    {secondStepEditing && <ResultBlock>
+                        <Typography variant={"h2"}>
+                            Вы
+                            выбрали: <i>
+                            {props.currentAddress}
+                        </i>
 
-    return (
-        <Container maxWidth={"md"}>
-            {!fillingAddressCompleted &&
-            <div>
-                <Typography variant={'h2'}>
-                    Адрес
-                </Typography>
-                {/*<form onSubmit={handleSubmit}></form>*/}
-                <AddressFormWrap>
-                    <Autocomplete
-                        autoComplete
-                        value={fieldValue}
-                        onInputChange={handleChange}
-                        // onInputChange={handleChange}
-                        // onInputChange={getSuggestion}
-                        sx={{width: '82%'}}
+                        </Typography>
+                        <IconButton onClick={turnEditMode} sx={{marginLeft: '20px'}} color={"primary"}
+                                    variant={"text"}><EditIcon/></IconButton>
+                    </ResultBlock>}
+                    {isEditMode && <AddressEditMode fullCurrentAddress={props.fullCurrentAddress}
+                                                    regionSuggestions={props.regionSuggestions}
+                                                    setAddress={props.setAddress}
+                                                    editedAddress={props.editedAddress}
+                                                    setEditedAddress={props.setEditedAddress}
+                                                    setEditMode={setEditMode}
+                                                    setIsAddressCompleted={setIsAddressCompleted}
+                    />}
+                    {isAddressCompleted &&
+                    <Button disableRipple={true} onClick={finishEditing} variant={"contained"}>Завершить</Button>}
 
-                        freeSolo
-                        id="combo-box-demo"
-                        options={props.suggestions.map((s) => <div>{s}</div>)}
-                        getOptionLabel={(option) => option ? option : ""}
-                        renderInput={(params) => <TextField {...params} />}
-                    />
-                    <Button sx={{width: '17%', height: '60px'}}
-                            clearOnEscape variant={"contained"}
-                            disableRipple={true}
-                            color={"primary"}
-                            onClick={getSuggestion}>{}Далее</Button>
-                </AddressFormWrap>
-                {firstFillingAddressCompleted &&
-                <Typography variant={'h2'}>
-                    Вы выбрали адрес ...
-                </Typography>
-                }
-            </div>
+                </div>
+                :
+                <SuccessBlock>
+                    <h2>Все поля успешно заполнены</h2>
+                    <CheckCircleRoundedIcon fontSize={"large"} sx={{margin: '25px'}} color={'success'}/>
+                    <Typography variant={"h2"}>
+                        Вы
+                        выбрали: </Typography>
+                    <Typography marginTop={'10px'} variant={"h3"}>
+                        <i>
+                            {props.currentAddress}
+                        </i>
+                    </Typography>
 
-
+                </SuccessBlock>
             }
+
         </Container>
-    )
 
 
-};
-
-export default AddressForm;
+    );
+}
